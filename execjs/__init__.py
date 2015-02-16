@@ -126,8 +126,8 @@ def eval(source):
     return get().eval(source)
 
 
-def exec_(source):
-    return get().exec_(source)
+def exec_(source, project_dir=None):
+    return get().exec_(source, project_dir)
 
 
 def compile(source):
@@ -200,10 +200,10 @@ class ExternalRuntime:
     def name(self):
         return self._name
 
-    def exec_(self, source):
+    def exec_(self, source, project_dir=None):
         if not self.is_available():
             raise RuntimeUnavailable()
-        return self.Context(self).exec_(source)
+        return self.Context(self).exec_(source, project_dir)
 
     def eval(self, source):
         if not self.is_available():
@@ -258,11 +258,11 @@ class ExternalRuntime:
             code = 'return eval({data})'.format(data=data)
             return self.exec_(code)
 
-        def exec_(self, source):
+        def exec_(self, source, project_dir=None):
             if self._source:
                 source = self._source + '\n' + source
 
-            (fd, filename) = tempfile.mkstemp(prefix='execjs', suffix='.js')
+            (fd, filename) = tempfile.mkstemp(prefix='execjs', suffix='.js', dir=project_dir)
             os.close(fd)
             try:
                 with io.open(filename, "w+", encoding=self._runtime._encoding) as fp:
