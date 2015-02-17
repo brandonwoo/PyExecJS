@@ -229,11 +229,18 @@ class ExternalRuntime:
 
     def _execfile(self, filename):
         """protected"""
+        my_env = os.environ.copy()
+        try:
+            node_path = os.environ["EXECJS_NODE_PATH"]
+            my_env['NODE_PATH'] = node_path
+        except KeyError:
+            pass
+
         cmd = self._binary() + [filename]
 
         p = None
         try:
-            p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
+            p = Popen(cmd, stdout=PIPE, stderr=STDOUT, env=my_env)
             stdoutdata, stderrdata = p.communicate()
             ret = p.wait()
         finally:
